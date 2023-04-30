@@ -23,9 +23,12 @@ struct ReservedData {
 
 class Database {
 private:
+    User user;
+    ReservedData reserved_data;
+    Database* d = new Database;
 
 public:
-
+    Database();
     //аня
     //функция ДОПИСЫВАЕТ в USERS.txt логин, пароль и имя, генерирует айди и прописывает админфлаг 0
     static void RegUser(string Login, string Password);
@@ -44,6 +47,7 @@ public:
     //короче я заебался писать
     static void AddData(ReservedData ReservedData);
     static void AddUser(User User);
+    static void ReadData(Database* (&d), string fileName, int n);
 
     //еще должна быть сортировка по структуре, редактирование и быстрый поиск, ну ты помнишь да короче
 };
