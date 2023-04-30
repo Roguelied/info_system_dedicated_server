@@ -20,6 +20,20 @@
 
 int main() {
     //сильно не сорить
+    string fileName;
+    int _size = 0;
+    Database* d = new Database[_size]; // массив объектов (броней)
+    fstream file;
+    file.open("DATA.txt"); // текстовый файл
+
+    char *str = new char [1024];
+    int n = 0; // количество строк в файле
+    while (!file.eof())
+    {
+        Database::ReadData("Data.txt", n);
+        file.getline(str, 1024, '\n');
+        n++;
+    }
 
     return 0;
 }
