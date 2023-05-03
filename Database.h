@@ -25,10 +25,11 @@ class Database {
 private:
     User user;
     ReservedData reserved_data;
-    Database* d = new Database;
 
 public:
-    Database();
+    int n;
+    vector<ReservedData> db;
+    int size;
     //аня
     //функция ДОПИСЫВАЕТ в USERS.txt логин, пароль и имя, генерирует айди и прописывает админфлаг 0
     static void RegUser(string Login, string Password);
@@ -39,15 +40,15 @@ public:
 
     //вася ваза вазон зонд завал зов ебем азов
     // Перегрузки удаления информации из базы - удаление по индексу и удаление по Структуре
-    static void DeleteData(int DataIndex);
+    static void DeleteData(vector<ReservedData> db, int DataIndex);
     static void DeleteData(ReservedData ReservedData);
     static void DeleteUser(int UserIndex);
     static void DeleteUser(User User);
 
     //короче я заебался писать
-    static void AddData(ReservedData ReservedData);
+    static void AddData(vector<ReservedData> (&db));
     static void AddUser(User User);
-    static void ReadData(Database* (&d), string fileName, int n);
+    static void ReadData(vector<ReservedData> (&db), string fileName);
 
     //еще должна быть сортировка по структуре, редактирование и быстрый поиск, ну ты помнишь да короче
 };

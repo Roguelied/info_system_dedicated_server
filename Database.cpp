@@ -1,5 +1,8 @@
 #include "Database.h"
-
+#include <vector>
+#include <algorithm>
+#include <iterator>
+#include <iostream>
 
 /*======================================================================================================================
  =====================================================================================================================*/
@@ -11,8 +14,9 @@ int Database::FindUser(string Login, string Password) {
 
 }
 
-void Database::DeleteData(int DataIndex) {
-
+void Database::DeleteData(vector<ReservedData> db, int DataIndex) {
+    db.erase(db.begin() + DataIndex);
+    std::copy(db.begin(), db.end(),ostream_iterator<ReservedData>(std::cout, " "));
 }
 
 void Database::DeleteData(ReservedData ReservedData) {
@@ -27,7 +31,16 @@ void Database::DeleteUser(User User) {
 
 }
 
-void Database::AddData(ReservedData ReservedData) {
+void Database::AddData(vector<ReservedData> (&db)) {
+    ReservedData reserved_data;
+    cout << "Введите ID" << endl; cin >> reserved_data.ID;
+    cout << "Введите точку отправки" << endl; cin >> reserved_data.DeparturePoint;
+    cout << "Введите точки назначения" << endl; cin >> reserved_data.DestinationPoint;
+    cout << "Введите тип вагона" << endl; cin >> reserved_data.SeatType;
+    cout << "Введите ваше место" << endl; cin >> reserved_data.PlaceNumber;
+    cout << "Введите дату" << endl; cin >> reserved_data.Date;
+    cout << "Введите цену" << endl; cin >> reserved_data.Price;
+    db.push_back(reserved_data);
 
 }
 
@@ -35,12 +48,13 @@ void Database::AddUser(User User) {
 
 }
 
-void Database::ReadData(Database* (&d), string fileName, int n) { // считывать по одному // закидываем элементы в массив
+void Database::ReadData(vector<ReservedData> (&db), string fileName) { // считывать по одному // закидываем элементы в массив
+
     fstream reading(fileName, fstream::in);
-    ReservedData reservedData;
-    reading >> reservedData.ID >> reservedData.DeparturePoint >> reservedData.DestinationPoint
-        >> reservedData.SeatType >> reservedData.PlaceNumber >> reservedData.Date >> reservedData.Price;
-    d[n] = reservedData;
+    ReservedData reserved_data;
+    reading >> reserved_data.ID >> reserved_data.DeparturePoint >> reserved_data.DestinationPoint
+        >> reserved_data.SeatType >> reserved_data.PlaceNumber >> reserved_data.Date >> reserved_data.Price;
+    db.push_back(reserved_data);
 
     reading.close();
 }
