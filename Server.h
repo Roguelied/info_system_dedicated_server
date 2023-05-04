@@ -1,6 +1,7 @@
 #ifndef INFO_SYSTEM_DEDICATED_SERVER_SERVER_H
 #define INFO_SYSTEM_DEDICATED_SERVER_SERVER_H
-#include "Utility.h"
+#include "Database.h"
+
 
 
 class Server {
@@ -15,14 +16,11 @@ private:
     static char recvBuffer[512];
 
 public:
-
+    static int DeleteIndex;
     static int Initialize();
     static int Listen();
 
 };
 
-ADDRINFO* Server::addrResult = NULL;
-SOCKET Server::ClientSocket = INVALID_SOCKET;
-SOCKET Server::ListenSocket = INVALID_SOCKET;
 
 #endif //INFO_SYSTEM_DEDICATED_SERVER_SERVER_H

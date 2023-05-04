@@ -1,4 +1,5 @@
-3 - ABOUNT OF ALL REGISTERED USERS
-номер    логин / пароль / фио / айди / админфлаг
-
-1   Admin / PassWE3FGD / UNKNOWN UNKNOWN UNKNOWN / ID000001 / 1
+3
+0    Admin    PassWE3FGD    ID000    1
+1    User    Pass    ID001    0
+2    LoginTest    PassTest    ID002    0
+3    NewLogin    NewPassw    ID003    0

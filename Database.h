@@ -2,13 +2,12 @@
 #define INFO_SYSTEM_DEDICATED_SERVER_DATABASE_H
 #include "Utility.h"
 
-
 // Изменяйте так, как вам нужно
 struct User {
+    int Index;
     string Login;
     string Password;
-    string Surname, Name, Patronymic;
-    string ID;
+    string USERID;
     int AdminFlag;
 } typedef User;
 
@@ -23,13 +22,21 @@ struct ReservedData {
 
 class Database {
 private:
-    User user;
-    ReservedData reserved_data;
+
 
 public:
-    int n;
-    vector<ReservedData> db;
-    int size;
+    static int AmountOfAllUsers;
+    static vector <User> ParsedUserData;
+    static vector <ReservedData> ParsedResData;
+
+
+
+    static void ParseUserData();
+    static void ParseResData();
+
+    static void UserDataToFile();
+
+
     //аня
     //функция ДОПИСЫВАЕТ в USERS.txt логин, пароль и имя, генерирует айди и прописывает админфлаг 0
     static void RegUser(string Login, string Password);
@@ -40,9 +47,8 @@ public:
 
     //вася ваза вазон зонд завал зов ебем азов
     // Перегрузки удаления информации из базы - удаление по индексу и удаление по Структуре
-    static void DeleteData(vector<ReservedData> db, int DataIndex);
+    static int DeleteUser(int UserIndex);
     static void DeleteData(ReservedData ReservedData);
-    static void DeleteUser(int UserIndex);
     static void DeleteUser(User User);
 
     //короче я заебался писать

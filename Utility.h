@@ -12,9 +12,16 @@
 #include <thread>
 #include <functional>
 #include <fstream>
-#include <string>
 #include <iomanip>
+#include <bits/stdc++.h>
+
+#define DELETE_COMMAND 10
 
 using namespace std;
+
+
+string IDCreator(int UserNumber);
+void substr(char* dest, char* source, int from, int length);
+
 
 #endif //INFO_SYSTEM_DEDICATED_SERVER_UTILITY_H

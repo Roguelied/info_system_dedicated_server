@@ -1,46 +1,99 @@
 #include "Database.h"
-#include <vector>
-#include <algorithm>
-#include <iterator>
-#include <iostream>
+#include "Utility.h"
 
 /*======================================================================================================================
  =====================================================================================================================*/
-void Database::RegUser(string Login, string Password) {
+int Database::AmountOfAllUsers;
+vector <User> Database::ParsedUserData;
+vector <ReservedData> Database::ParsedResData;
 
+
+void Database::ParseUserData() {
+    string Buffer;
+    fstream File("../USERS.txt", fstream::in);
+
+    getline(File, Buffer);
+    AmountOfAllUsers = Buffer[0] - 48;
+
+    while (getline(File, Buffer)) {
+        stringstream StringStream(Buffer);
+        User User;
+
+        StringStream >> User.Index;
+        StringStream >> User.Login;
+        StringStream >> User.Password;
+        StringStream >> User.USERID;
+        StringStream >> User.AdminFlag;
+
+        ParsedUserData.push_back(User);
+    }
+    File.close();
+    //at this moment u have all parsed data from file USERS.txt in Database::ParsedUserData
+}
+
+
+void Database::UserDataToFile() {
+    fstream USERDATA("../USERS.txt", fstream::out);
+    USERDATA << AmountOfAllUsers << '\n';
+    for (auto &User : ParsedUserData) {
+        USERDATA << User.Index << "    " << User.Login << "    " << User.Password << "    " << User.USERID << "    " \
+        << User.AdminFlag << '\n';
+    }
+    USERDATA.close();
+}
+
+void Database::RegUser(string Login, string Password) {
+    User NewUser;
+    NewUser.Index = AmountOfAllUsers+1;
+    NewUser.Login = std::move(Login);
+    NewUser.Password = std::move(Password);
+    NewUser.USERID = IDCreator(AmountOfAllUsers+1);
+    NewUser.AdminFlag = 0;
+
+
+    ParsedUserData.push_back(NewUser);
+    AmountOfAllUsers++;
+    UserDataToFile();
 }
 
 int Database::FindUser(string Login, string Password) {
-
+    for (auto &User : ParsedUserData) {
+        if (User.Login == Login and User.Password == Password) return 1;
+        else if (User.Login == Login and User.Password != Password) return -1;
+    }
+    return 0;
 }
 
-void Database::DeleteData(vector<ReservedData> db, int DataIndex) {
-    db.erase(db.begin() + DataIndex);
-    std::copy(db.begin(), db.end(),ostream_iterator<ReservedData>(std::cout, " "));
+int Database::DeleteUser(int UserIndex) {
+    int Index = 0, IsDeleteSuccessful = 0;
+    for (auto &User : ParsedUserData) {
+        if (User.Index == UserIndex) {
+            ParsedUserData.erase(ParsedUserData.begin() + Index);
+            IsDeleteSuccessful = 1;
+            break;
+        }
+        Index++;
+    }
+    Index = 0;
+    if (IsDeleteSuccessful) {
+        AmountOfAllUsers--;
+        for (auto &User : ParsedUserData) {
+            User.Index = Index;
+            Index++;
+        }
+        UserDataToFile();
+        return 1;
+    }
+    return 0;
+
 }
 
 void Database::DeleteData(ReservedData ReservedData) {
 
 }
 
-void Database::DeleteUser(int UserIndex) {
-
-}
-
-void Database::DeleteUser(User User) {
-
-}
 
 void Database::AddData(vector<ReservedData> (&db)) {
-    ReservedData reserved_data;
-    cout << "Введите ID" << endl; cin >> reserved_data.ID;
-    cout << "Введите точку отправки" << endl; cin >> reserved_data.DeparturePoint;
-    cout << "Введите точки назначения" << endl; cin >> reserved_data.DestinationPoint;
-    cout << "Введите тип вагона" << endl; cin >> reserved_data.SeatType;
-    cout << "Введите ваше место" << endl; cin >> reserved_data.PlaceNumber;
-    cout << "Введите дату" << endl; cin >> reserved_data.Date;
-    cout << "Введите цену" << endl; cin >> reserved_data.Price;
-    db.push_back(reserved_data);
 
 }
 
@@ -50,11 +103,5 @@ void Database::AddUser(User User) {
 
 void Database::ReadData(vector<ReservedData> (&db), string fileName) { // считывать по одному // закидываем элементы в массив
 
-    fstream reading(fileName, fstream::in);
-    ReservedData reserved_data;
-    reading >> reserved_data.ID >> reserved_data.DeparturePoint >> reserved_data.DestinationPoint
-        >> reserved_data.SeatType >> reserved_data.PlaceNumber >> reserved_data.Date >> reserved_data.Price;
-    db.push_back(reserved_data);
-
-    reading.close();
 }
+
