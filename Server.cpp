@@ -164,7 +164,7 @@ int Server::Listen() {
 
                 Result = Database::FindUser(Login, Password);
                 if  (Result == -1 or Result == 1) {
-                    strcpy(Message, "This username is already taken\n");
+                    strcpy(Message, "This username is already taken                 \n");
                     cout << Message;
                 } else if (Result ==  0) {
                     Database::RegUser(Login, Password);
