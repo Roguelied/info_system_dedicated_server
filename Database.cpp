@@ -1,11 +1,14 @@
 #include "Database.h"
+
+#include <utility>
 #include "Utility.h"
 
-/*======================================================================================================================
+/*=============================================USER====================================================================
  =====================================================================================================================*/
 int Database::AmountOfAllUsers;
+int Database::AmountOfAllReserved;
 vector <User> Database::ParsedUserData;
-vector <ReservedData> Database::ParsedResData;
+vector <ReservedData> Database::ParsedReservedData;
 
 
 void Database::ParseUserData() {
@@ -32,6 +35,7 @@ void Database::ParseUserData() {
 }
 
 
+
 void Database::UserDataToFile() {
     fstream USERDATA("../USERS.txt", fstream::out);
     USERDATA << AmountOfAllUsers << '\n';
@@ -41,6 +45,7 @@ void Database::UserDataToFile() {
     }
     USERDATA.close();
 }
+
 
 void Database::RegUser(string Login, string Password) {
     User NewUser;
@@ -56,12 +61,28 @@ void Database::RegUser(string Login, string Password) {
     UserDataToFile();
 }
 
-int Database::FindUser(string Login, string Password) {
+
+string Database::FindUser(string Login, string Password) {
+    string Buffer;
     for (auto &User : ParsedUserData) {
-        if (User.Login == Login and User.Password == Password) return 1;
-        else if (User.Login == Login and User.Password != Password) return -1;
+        if (User.Login == Login and User.Password == Password) {
+
+            Buffer += to_string(User.Index); Buffer += "    ";
+            Buffer += User.Login; Buffer += "    ";
+            Buffer += User.Password; Buffer += "    ";
+            Buffer += User.USERID; Buffer += "    ";
+            Buffer += to_string(User.AdminFlag);
+            //cout << Buffer << ' ' << Buffer.length();
+            //strcpy(OutputStr, Buffer.c_str());
+            return Buffer;
+        }
+        else if (User.Login == Login and User.Password != Password) {
+            //strcpy(OutputStr, "WRONGPASS");
+            return "WRONGPASS";
+        }
     }
-    return 0;
+    //strcpy(OutputStr, "NOTFOUND");
+    return "NOTFOUND";
 }
 
 int Database::DeleteUser(int UserIndex) {
@@ -85,23 +106,102 @@ int Database::DeleteUser(int UserIndex) {
         return 1;
     }
     return 0;
-
 }
 
-void Database::DeleteData(ReservedData ReservedData) {
+/*=============================================RESERVED DATA===========================================================
+ =====================================================================================================================*/
 
+
+int Database::DeleteData(int DataIndex) {
+    int Index = 0, IsDeleteSuccessful = 0;
+    for (auto &Data : ParsedReservedData) {
+        if (Data.Index == DataIndex) {
+            ParsedReservedData.erase(ParsedReservedData.begin() + Index);
+            IsDeleteSuccessful = 1;
+            break;
+        }
+        Index++;
+    }
+    Index = 0;
+    if (IsDeleteSuccessful) {
+        AmountOfAllReserved--;
+        for (auto &Data : ParsedReservedData) {
+            Data.Index = Index;
+            Index++;
+        }
+        ReservedDataToFile();
+        return 1;
+    }
+    return 0;
 }
 
-
-void Database::AddData(vector<ReservedData> (&db)) {
-
+void Database::ReservedDataToFile() {
+    fstream RESDATA("../DATA.txt", fstream::out);
+    RESDATA << AmountOfAllReserved << '\n';
+    for (auto &ReservedData : ParsedReservedData) {
+        RESDATA << ReservedData.Index << "    " << ReservedData.Type << "    " << ReservedData.Date << "    " <<
+                ReservedData.Place << "    " << ReservedData.User << '\n';
+    }
+    RESDATA.close();
 }
 
-void Database::AddUser(User User) {
+void Database::ParseResData() {
+    string Buffer;
+    fstream File("../DATA.txt", fstream::in);
 
+    getline(File, Buffer);
+    AmountOfAllReserved = Buffer[0] - 48;
+
+    while (getline(File, Buffer)) {
+        stringstream StringStream(Buffer);
+        ReservedData Data;
+
+        StringStream >> Data.Index;
+        StringStream >> Data.Type;
+        StringStream >> Data.Date;
+        StringStream >> Data.Place;
+        StringStream >> Data.User;
+
+        ParsedReservedData.push_back(Data);
+    }
+    File.close();
 }
 
-void Database::ReadData(vector<ReservedData> (&db), string fileName) { // считывать по одному // закидываем элементы в массив
+string Database::FindReservedData(string Type, string Date, string Place) {
+    string Buffer;
+    for (auto &Data : ParsedReservedData) {
+        if (Data.Type == Type and Data.Date == Date and Data.Place == Place) {
 
+            Buffer += to_string(Data.Index); Buffer += "    ";
+            Buffer += Data.Type; Buffer += "    ";
+            Buffer += Data.Date; Buffer += "    ";
+            Buffer += Data.Place; Buffer += "    ";
+            if (Data.User == "NONE") {
+                return "AVAILABLE";
+            }
+            Buffer += Data.User;
+            return Buffer;
+        }
+        else if (Data.Type == Type and Data.Date != Date and Data.Place == Place) {
+
+            return "";
+        }
+    }
+    //strcpy(OutputStr, "NOTFOUND");
+    return "NOTFOUND";
 }
 
+void Database::AddNewReservation(string Type, string Date, string Place, string User) {
+    ReservedData NewData;
+
+    NewData.Index = AmountOfAllReserved+1;
+    NewData.Type = std::move(Type);
+    NewData.Date =  std::move(Date);
+    NewData.Place =  std::move(Place);
+    NewData.User =  std::move(User);
+
+
+    ParsedReservedData.push_back(NewData);
+    AmountOfAllReserved++;
+    ReservedDataToFile();
+}

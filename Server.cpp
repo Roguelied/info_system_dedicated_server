@@ -86,15 +86,15 @@ int Server::Listen() {
             cout << "Recieved:" << recvBuffer << endl;
             char Message[64];
 
-            //DELETE CASE----------------------------------------------------------------------------------------------
-            if (recvBuffer[0] == 'D' and recvBuffer[1] == 'E' and recvBuffer[2] == 'L'){
-                if (isdigit(recvBuffer[4]) and isdigit(recvBuffer[5])) {
+            //USER DELETE CASE----------------------------------------------------------------------------------------------
+            if (recvBuffer[0] == 'U' and recvBuffer[1] == 'D' and recvBuffer[2] == 'E' and recvBuffer[3] == 'L'){
+                if (isdigit(recvBuffer[5]) and isdigit(recvBuffer[6])) {
                     char str[2];
-                    str[0] = recvBuffer[4];
-                    str[1] = recvBuffer[5];
+                    str[0] = recvBuffer[5];
+                    str[1] = recvBuffer[6];
                     DeleteIndex = atoi(str);
                 } else {
-                    DeleteIndex = recvBuffer[4] - 48;
+                    DeleteIndex = recvBuffer[5] - 48;
                 }
                 cout << DeleteIndex << ' ';
                 Result = Database::DeleteUser(DeleteIndex);
@@ -107,10 +107,10 @@ int Server::Listen() {
                 }
             }
             //---------------------------------------------------------------------------------------------------------
-            //FIND CASE------------------------------------------------------------------------------------------------
-            if (recvBuffer[0] == 'F' and recvBuffer[1] == 'N' and recvBuffer[2] == 'D'){
-                char sliced_buf[20];
-                substr(sliced_buf, recvBuffer, 4, 20);
+            //USER FIND CASE------------------------------------------------------------------------------------------------
+            if (recvBuffer[0] == 'U' and recvBuffer[1] == 'F' and recvBuffer[2] == 'N' and recvBuffer[3] == 'D'){
+                char sliced_buf[25];
+                substr(sliced_buf, recvBuffer, 5, 25);
                 string Credentials(sliced_buf);
                 cout << Credentials;
                 string Login;
@@ -130,25 +130,27 @@ int Server::Listen() {
                 }
                 cout << Password << '\n';
 
-                Result = Database::FindUser(Login, Password);
-                if (Result == 1) {
-                    strcpy(Message, "Successfully find user, login accepted\n");
+                string Buffer = Database::FindUser(Login, Password);
+
+                if (Buffer == "WRONGPASS") {
+                    strcpy(Message, "WRONGPASS\n");
                     cout << Message;
-                } else if (Result == -1) {
-                    strcpy(Message, "Wrong Password\n");
+                } else if (Buffer ==  "NOTFOUND") {
+                    strcpy(Message, "NOTFOUND\n");
                     cout << Message;
-                } else if (Result ==  0) {
-                    strcpy(Message, "User not found\n");
+                } else {
+
+                    strcpy(Message, Buffer.c_str());
                     cout << Message;
                 }
             }
             //---------------------------------------------------------------------------------------------------------
-            //REGISTRATION CASE----------------------------------------------------------------------------------------
-            if (recvBuffer[0] == 'R' and recvBuffer[1] == 'E' and recvBuffer[2] == 'G'){
-                char sliced_buf[20];
+            //USER REGISTRATION CASE-----------------------------------------------------------------------------------
+            if (recvBuffer[0] == 'U' and recvBuffer[1] == 'R' and recvBuffer[2] == 'E' and recvBuffer[3] == 'G'){
+                char sliced_buf[25];
                 string Login;
                 string Password;
-                substr(sliced_buf, recvBuffer, 4, 20);
+                substr(sliced_buf, recvBuffer, 5, 25);
                 string Credentials(sliced_buf);
                 cout << Credentials;
                 int i = 0;
@@ -162,19 +164,117 @@ int Server::Listen() {
                 }
                 cout << Password << '\n';
 
-                Result = Database::FindUser(Login, Password);
-                if  (Result == -1 or Result == 1) {
-                    strcpy(Message, "This username is already taken                 \n");
-                    cout << Message;
-                } else if (Result ==  0) {
+                string Buffer = Database::FindUser(Login, Password);
+
+                if (Buffer ==  "NOTFOUND") {
                     Database::RegUser(Login, Password);
-                    strcpy(Message, "Registration successful, now you can sign in\n");
+                    strcpy(Message, "REGISTERED                             \n");
+                    cout << Message;
+                } else {
+                    strcpy(Message, "Username is taken");
+                    cout << Buffer << '\n';
+                }
+            }
+            //---------------------------------------------------------------------------------------------------------
+            //DATABASE ADD CASE----------------------------------------------------------------------------------------
+            //DADD DCLASS%08.05.2024/18:23%12%NONE%
+            if (recvBuffer[0] == 'D' and recvBuffer[1] == 'A' and recvBuffer[2] == 'D' and recvBuffer[3] == 'D'){
+                char sliced_buf[40];
+                substr(sliced_buf, recvBuffer, 5, 45);
+                string ReservedData(sliced_buf);
+                auto i = ReservedData.begin();
+                string Type(i, i+6); i+=7;
+                string Date(i, i+16); i+=17;
+                string Place(i, i+2); i+=3;
+                string UserLogin(i, ReservedData.end()-1);
+                cout << Type << ' ' << Date << ' '<< Place << ' '<< UserLogin << '\n';
+
+                string Buffer = Database::FindReservedData(Type, Date, Place);
+
+                if (Buffer ==  "NOTFOUND") {
+                    Database::AddNewReservation(Type, Date, Place, UserLogin);
+                    strcpy(Message, "RESERVATION ADDED              \n");
+                    cout << Message;
+                } else {
+                    strcpy(Message, "This reservation is already exist");
+                    cout << Message << '\n';
+                }
+            }
+            //---------------------------------------------------------------------------------------------------------
+            //DATABASE DEL CASE----------------------------------------------------------------------------------------
+            if (recvBuffer[0] == 'D' and recvBuffer[1] == 'D' and recvBuffer[2] == 'E' and recvBuffer[3] == 'L'){
+                if (isdigit(recvBuffer[5]) and isdigit(recvBuffer[6])) {
+                    char str[2];
+                    str[0] = recvBuffer[5];
+                    str[1] = recvBuffer[6];
+                    DeleteIndex = atoi(str);
+                } else {
+                    DeleteIndex = recvBuffer[5] - 48;
+                }
+                cout << DeleteIndex << ' ';
+                Result = Database::DeleteData(DeleteIndex);
+                if (Result == 1) {
+                    cout << "Successfully delete reservation\n";
+                    strcpy(Message, "Successfully delete reservation\n");
+                } else if (Result == 0) {
+                    cout << "Reservation not found\n";
+                    strcpy(Message, "Reservation not found\n");
+                }
+            }
+            //---------------------------------------------------------------------------------------------------------
+            //DATABASE FIND CASE---------------------------------------------------------------------------------------
+            if (recvBuffer[0] == 'D' and recvBuffer[1] == 'F' and recvBuffer[2] == 'N' and recvBuffer[3] == 'D'){
+                char sliced_buf[40];
+                substr(sliced_buf, recvBuffer, 5, 45);
+                string ReservedData(sliced_buf);
+                auto i = ReservedData.begin();
+                string Type(i, i+6); i+=7;
+                string Date(i, i+16); i+=17;
+                string Place(i, i+2); i+=3;
+                string UserLogin(i, ReservedData.end()-1);
+                cout << Type << ' ' << Date << ' '<< Place << ' '<< UserLogin << '\n';
+
+                string Buffer = Database::FindReservedData(Type, Date, Place);
+
+                if (Buffer ==  "NOTFOUND") {
+                    strcpy(Message, "NOTFOUND              \n");
+                    cout << Message;
+                } else {
+                    strcpy(Message, Buffer.c_str());
                     cout << Message;
                 }
             }
             //---------------------------------------------------------------------------------------------------------
+            //RESERVE CASE---------------------------------------------------------------------------------------------
 
-            strcpy(SendBuffer, Message); memset(Message, 0, sizeof(char)*strlen(Message));
+
+            //---------------------------------------------------------------------------------------------------------
+            //GET ALL AVAILABLE RESERVATIONS CASE----------------------------------------------------------------------
+            if (recvBuffer[0] == 'D' and recvBuffer[1] == 'A' and recvBuffer[2] == 'L' and recvBuffer[3] == 'L'){
+                char sliced_buf[40];
+                substr(sliced_buf, recvBuffer, 5, 45);
+                string ReservedData(sliced_buf);
+
+                auto i = ReservedData.begin();
+                string Type(i, i+6); i+=7;
+                string Date(i, i+16); i+=17;
+                string Place(i, i+2); i+=3;
+                string UserLogin(i, ReservedData.end()-1);
+                cout << Type << ' ' << Date << ' '<< Place << ' '<< UserLogin << '\n';
+
+                string Buffer = Database::FindReservedData(Type, Date, Place);
+
+                if (Buffer ==  "NOTFOUND") {
+                    strcpy(Message, "NOTFOUND              \n");
+                    cout << Message;
+                } else {
+                    strcpy(Message, Buffer.c_str());
+                    cout << Message;
+                }
+            }
+
+            //---------------------------------------------------------------------------------------------------------
+            strcpy(SendBuffer, Message);
             Result = send(ClientSocket, SendBuffer, (int)strlen(SendBuffer), 0);
 
 
