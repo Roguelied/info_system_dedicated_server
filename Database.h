@@ -17,6 +17,7 @@ struct ReservedData {
     string SeatType, PlaceNumber, ID, DeparturePoint, DestinationPoint;
     int Price;
     DATE Date;
+    int Index
 } typedef ReservedData;
 
 
@@ -26,6 +27,7 @@ private:
 
 public:
     static int AmountOfAllUsers;
+    static int AmountOfAllRes;
     static vector <User> ParsedUserData;
     static vector <ReservedData> ParsedResData;
 
@@ -35,6 +37,7 @@ public:
     static void ParseResData();
 
     static void UserDataToFile();
+    static void ResDataToFile();
 
 
     //аня
@@ -48,13 +51,10 @@ public:
     //вася ваза вазон зонд завал зов ебем азов
     // Перегрузки удаления информации из базы - удаление по индексу и удаление по Структуре
     static int DeleteUser(int UserIndex);
-    static void DeleteData(ReservedData ReservedData);
-    static void DeleteUser(User User);
+    static int DeleteData(int ResIndex);
 
     //короче я заебался писать
-    static void AddData(vector<ReservedData> (&db));
-    static void AddUser(User User);
-    static void ReadData(vector<ReservedData> (&db), string fileName);
+
 
     //еще должна быть сортировка по структуре, редактирование и быстрый поиск, ну ты помнишь да короче
 };

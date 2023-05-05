@@ -4,6 +4,7 @@
 /*======================================================================================================================
  =====================================================================================================================*/
 int Database::AmountOfAllUsers;
+int Database::AmountOfAllRes;
 vector <User> Database::ParsedUserData;
 vector <ReservedData> Database::ParsedResData;
 
@@ -88,20 +89,63 @@ int Database::DeleteUser(int UserIndex) {
 
 }
 
-void Database::DeleteData(ReservedData ReservedData) {
+int Database::DeleteData(int ResIndex) {
+    int Index = 0, IsDeleteSuccessful = 0;
+    for (auto &ReservedData : ParsedResData) {
+        if (ReservedData.Index == ResIndex) {
+            ParsedResData.erase(ParsedResData.begin() + Index);
+            IsDeleteSuccessful = 1;
+            break;
+        }
+        Index++;
+    }
+    Index = 0;
+    if (IsDeleteSuccessful) {
+        AmountOfAllRes--;
+        for (auto &ReservedData : ParsedResData) {
+            ReservedData.Index = Index;
+            Index++;
+        }
+        ResDataToFile();
+        return 1;
+    }
+    return 0;
 
 }
 
-
-void Database::AddData(vector<ReservedData> (&db)) {
-
+void Database::ResDataToFile() {
+    fstream RESDATA("../DATA.txt", fstream::out);
+    RESDATA << AmountOfAllRes << '\n';
+    for (auto &ReservedData : ParsedResData) {
+        RESDATA << ReservedData.ID << "    " << ReservedData.DeparturePoint << "    " << ReservedData.DestinationPoint << "    " <<
+        ReservedData.SeatType << "    " << ReservedData.PlaceNumber << "    " << ReservedData.Date << "    " << ReservedData.Price << '\n';
+    }
+    RESDATA.close();
 }
 
-void Database::AddUser(User User) {
 
-}
+void Database::ParseResData() {
+    string Buffer;
+    fstream File("../DATA.txt", fstream::in);
 
-void Database::ReadData(vector<ReservedData> (&db), string fileName) { // считывать по одному // закидываем элементы в массив
+    getline(File, Buffer);
+    AmountOfAllRes = Buffer[0] - 48;
 
+    while (getline(File, Buffer)) {
+        stringstream StringStream(Buffer);
+        ReservedData ReservedData;
+
+        StringStream >> ReservedData.Price;
+        StringStream >> ReservedData.Date;
+        StringStream >> ReservedData.PlaceNumber;
+        StringStream >> ReservedData.SeatType;
+        StringStream >> ReservedData.DestinationPoint;
+        StringStream >> ReservedData.DeparturePoint;
+        StringStream >> ReservedData.ID;
+
+        ParsedResData.push_back(ReservedData);
+    }
+    File.close();
+    //at this moment u have all parsed data from file USERS.txt in Database::ParsedUserData
 }
 
