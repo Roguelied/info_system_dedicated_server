@@ -53,6 +53,9 @@ public:
     static int DeleteData(int DataIndex);
     static string FindReservedData(string Type, string Date, string Place);
     static void AddNewReservation(string Type, string Date, string Place, string User);
+
+
+    static string Reserve(string Login, int ReserveIndex);
 };
 
 

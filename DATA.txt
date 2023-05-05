@@ -3,4 +3,4 @@
 1    TYPE    DATE    PLACE    USERLOGIN
 2    BCLASS    05.05.2023/18:40    44    Admin
 3    ZCLASS    08.05.2023/18:44    33    NONE
-4    DCLASS    08.05.2024/18:23    12    NONE
+4    DCLASS    08.05.2024/18:23    12    User

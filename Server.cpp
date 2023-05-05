@@ -4,8 +4,8 @@ int Server::DeleteIndex;
 ADDRINFO* Server::addrResult = NULL;
 SOCKET Server::ClientSocket = INVALID_SOCKET;
 SOCKET Server::ListenSocket = INVALID_SOCKET;
-char Server::SendBuffer[512];
-char Server::recvBuffer[512];
+char Server::SendBuffer[2048];
+char Server::recvBuffer[64];
 WSADATA Server::wsaData;
 ADDRINFO Server::hints;
 
@@ -241,39 +241,80 @@ int Server::Listen() {
                     cout << Message;
                 } else {
                     strcpy(Message, Buffer.c_str());
-                    cout << Message;
+                    cout << Message << '\n';
                 }
             }
             //---------------------------------------------------------------------------------------------------------
             //RESERVE CASE---------------------------------------------------------------------------------------------
+            if (recvBuffer[0] == 'R' and recvBuffer[1] == 'E' and recvBuffer[2] == 'S'){
+                char sliced_buf[25];
+                string Login, Buffer;
+                int ReserveIndex;
+                if (isdigit(recvBuffer[4]) and isdigit(recvBuffer[5])) {
+                    char str[2];
+                    str[0] = recvBuffer[4];
+                    str[1] = recvBuffer[5];
+                    ReserveIndex = atoi(str);
 
+                    substr(sliced_buf, recvBuffer, 5, 20);
+                    string User(sliced_buf);
 
+                    int i = 2;
+                    while (User[i] != '%') {
+                        Login.push_back(User[i]);
+                        i++;
+                    }
+
+                } else {
+                    ReserveIndex = recvBuffer[4] - 48;
+                    substr(sliced_buf, recvBuffer, 5, 20);
+                    string User(sliced_buf);
+
+                    int i = 1;
+                    while (User[i] != '%') {
+                        Login.push_back(User[i]);
+                        i++;
+                    }
+                }
+                Buffer = Database::Reserve(Login, ReserveIndex);
+
+                if (Buffer == "RESERVED BY ANOTHER USER") {
+                    cout << "RESERVED BY ANOTHER USER";
+                } else if (Buffer == "ALREADY RESERVED") {
+                    cout << "ALREADY RESERVED";
+                } else if (Buffer == "NOTFOUND") {
+                    cout << "NOTFOUND";
+                } else {
+                    cout << Buffer << '\n';
+                    strcpy(Message, Buffer.c_str());
+                }
+            }
             //---------------------------------------------------------------------------------------------------------
             //GET ALL AVAILABLE RESERVATIONS CASE----------------------------------------------------------------------
             if (recvBuffer[0] == 'D' and recvBuffer[1] == 'A' and recvBuffer[2] == 'L' and recvBuffer[3] == 'L'){
-                char sliced_buf[40];
-                substr(sliced_buf, recvBuffer, 5, 45);
-                string ReservedData(sliced_buf);
-
-                auto i = ReservedData.begin();
-                string Type(i, i+6); i+=7;
-                string Date(i, i+16); i+=17;
-                string Place(i, i+2); i+=3;
-                string UserLogin(i, ReservedData.end()-1);
-                cout << Type << ' ' << Date << ' '<< Place << ' '<< UserLogin << '\n';
-
-                string Buffer = Database::FindReservedData(Type, Date, Place);
-
-                if (Buffer ==  "NOTFOUND") {
-                    strcpy(Message, "NOTFOUND              \n");
-                    cout << Message;
-                } else {
-                    strcpy(Message, Buffer.c_str());
-                    cout << Message;
+                string AllResData;
+                for (auto &ReservedData : Database::ParsedReservedData) {
+                    AllResData += (to_string(ReservedData.Index) + \
+                    ReservedData.Type + ReservedData.Date + \
+                    ReservedData.Place + ReservedData.User + "\n");
                 }
+                strcpy(Message, AllResData.c_str());
+                cout << Message;
             }
 
             //---------------------------------------------------------------------------------------------------------
+            //---------------------------------------------------------------------------------------------------------
+            //GET ALL AVAILABLE RESERVATIONS CASE----------------------------------------------------------------------
+            if (recvBuffer[0] == 'U' and recvBuffer[1] == 'A' and recvBuffer[2] == 'L' and recvBuffer[3] == 'L'){
+                string AllUserData;
+                for (auto &UserData : Database::ParsedUserData) {
+                    AllUserData += (to_string(UserData.Index) + UserData.Login + \
+                    UserData.Password + UserData.USERID + to_string(UserData.AdminFlag));
+                }
+                strcpy(Message, AllUserData.c_str());
+                cout << Message;
+            }
+
             strcpy(SendBuffer, Message);
             Result = send(ClientSocket, SendBuffer, (int)strlen(SendBuffer), 0);
 

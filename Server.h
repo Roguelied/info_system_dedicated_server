@@ -12,8 +12,8 @@ private:
     static SOCKET ClientSocket;
     static SOCKET ListenSocket;
 
-    static char SendBuffer[512];
-    static char recvBuffer[512];
+    static char SendBuffer[2048];
+    static char recvBuffer[64];
 
 public:
     static int DeleteIndex;

@@ -72,12 +72,10 @@ string Database::FindUser(string Login, string Password) {
             Buffer += User.Password; Buffer += "    ";
             Buffer += User.USERID; Buffer += "    ";
             Buffer += to_string(User.AdminFlag);
-            //cout << Buffer << ' ' << Buffer.length();
-            //strcpy(OutputStr, Buffer.c_str());
             return Buffer;
         }
         else if (User.Login == Login and User.Password != Password) {
-            //strcpy(OutputStr, "WRONGPASS");
+
             return "WRONGPASS";
         }
     }
@@ -176,15 +174,8 @@ string Database::FindReservedData(string Type, string Date, string Place) {
             Buffer += Data.Type; Buffer += "    ";
             Buffer += Data.Date; Buffer += "    ";
             Buffer += Data.Place; Buffer += "    ";
-            if (Data.User == "NONE") {
-                return "AVAILABLE";
-            }
             Buffer += Data.User;
             return Buffer;
-        }
-        else if (Data.Type == Type and Data.Date != Date and Data.Place == Place) {
-
-            return "";
         }
     }
     //strcpy(OutputStr, "NOTFOUND");
@@ -204,4 +195,22 @@ void Database::AddNewReservation(string Type, string Date, string Place, string 
     ParsedReservedData.push_back(NewData);
     AmountOfAllReserved++;
     ReservedDataToFile();
+}
+
+string Database::Reserve(string Login, int ReserveIndex) {
+    if (ReserveIndex > ParsedReservedData.capacity()) {
+        return "NOTFOUND";
+    }
+    if (FindUser(Login, "KOCTbILb") != "NOTFOUND") {
+        if (ParsedReservedData[ReserveIndex].User == Login) {
+            return "ALREADY RESERVED";
+        }
+        if (ParsedReservedData[ReserveIndex].User != "NONE" and ParsedReservedData[ReserveIndex].User != Login) {
+            return "RESERVED BY ANOTHER USER";
+        }
+        ParsedReservedData[ReserveIndex].User = Login;
+        ReservedDataToFile();
+        return Login + " SUCCESSFULLY RESERVED " + to_string(ReserveIndex) + " SLOT";
+    }
+    return "NOUTFOUND";
 }
