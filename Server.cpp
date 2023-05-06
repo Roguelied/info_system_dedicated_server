@@ -172,7 +172,7 @@ int Server::Listen() {
                     cout << Message;
                 } else {
                     strcpy(Message, "Username is taken");
-                    cout << Buffer << '\n';
+                    cout << Message << '\n';
                 }
             }
             //---------------------------------------------------------------------------------------------------------
@@ -290,7 +290,7 @@ int Server::Listen() {
                 }
             }
             //---------------------------------------------------------------------------------------------------------
-            //GET ALL AVAILABLE RESERVATIONS CASE----------------------------------------------------------------------
+            //GET ALL RESERVATIONS ------------------------------------------------------------------------------------
             if (recvBuffer[0] == 'D' and recvBuffer[1] == 'A' and recvBuffer[2] == 'L' and recvBuffer[3] == 'L'){
                 string AllResData;
                 for (auto &ReservedData : Database::ParsedReservedData) {
@@ -303,8 +303,7 @@ int Server::Listen() {
             }
 
             //---------------------------------------------------------------------------------------------------------
-            //---------------------------------------------------------------------------------------------------------
-            //GET ALL AVAILABLE RESERVATIONS CASE----------------------------------------------------------------------
+            //GET ALL USERS--------------------------------------------------------------------------------------------
             if (recvBuffer[0] == 'U' and recvBuffer[1] == 'A' and recvBuffer[2] == 'L' and recvBuffer[3] == 'L'){
                 string AllUserData;
                 for (auto &UserData : Database::ParsedUserData) {
@@ -314,6 +313,36 @@ int Server::Listen() {
                 strcpy(Message, AllUserData.c_str());
                 cout << Message;
             }
+
+            //GET ALL AVAILABLE RESERVATIONS --------------------------------------------------------------------------
+            if (recvBuffer[0] == 'A' and recvBuffer[1] == 'A' and recvBuffer[2] == 'L' and recvBuffer[3] == 'L'){
+
+                int Index;
+                for (auto &ResData : Database::ParsedReservedData) {
+                    if (ResData.User == "NONE") {
+                        Index++;
+                    }
+                }
+                strcpy(SendBuffer, "LISTEN_TO_ME");
+                send(ClientSocket, SendBuffer, (int)strlen(SendBuffer), 0);
+                cout << SendBuffer << '\n';
+
+                strcpy(SendBuffer, (to_string(Index) + "                    ").c_str());
+                cout << SendBuffer << '\n';
+                send(ClientSocket, SendBuffer, (int)strlen(SendBuffer), 0);
+
+                for (auto &ResData : Database::ParsedReservedData) {
+                    if (ResData.User == "NONE") {
+                        string Buffer =  (to_string(ResData.Index) + ResData.Type + ResData.Date + ResData.Place + ResData.User + '\n');
+                        strcpy(SendBuffer, Buffer.c_str());
+                        send(ClientSocket, SendBuffer, (int)strlen(SendBuffer), 0);
+                    }
+                }
+
+                cout << Message;
+            }
+            //---------------------------------------------------------------------------------------------------------
+
 
             strcpy(SendBuffer, Message);
             Result = send(ClientSocket, SendBuffer, (int)strlen(SendBuffer), 0);
