@@ -112,8 +112,8 @@ int Server::Listen() {
             //---------------------------------------------------------------------------------------------------------
             //USER FIND CASE------------------------------------------------------------------------------------------------
             if (recvBuffer[0] == 'U' and recvBuffer[1] == 'F' and recvBuffer[2] == 'N' and recvBuffer[3] == 'D'){
-                char sliced_buf[25];
-                substr(sliced_buf, recvBuffer, 5, 25);
+                char sliced_buf[26];
+                substr(sliced_buf, recvBuffer, 5, 26);
                 string Credentials(sliced_buf);
                 cout << Credentials;
                 string Login;
