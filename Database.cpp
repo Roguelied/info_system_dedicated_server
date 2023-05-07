@@ -16,7 +16,7 @@ void Database::ParseUserData() {
     fstream File("../USERS.txt", fstream::in);
 
     getline(File, Buffer);
-    AmountOfAllUsers = Buffer[0] - 48;
+    AmountOfAllUsers = atoi(Buffer.c_str());
 
     while (getline(File, Buffer)) {
         stringstream StringStream(Buffer);
