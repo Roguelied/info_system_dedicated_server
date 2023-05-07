@@ -83,11 +83,15 @@ int Server::Listen() {
         ZeroMemory(recvBuffer, 512);
         Result = recv(ClientSocket, recvBuffer, 512, 0);
         if (Result > 0) {
-            cout << "Recieved:" << recvBuffer << endl;
+            cout << "Recieved: " << recvBuffer << endl;
             char Message[2048];
+            memset(Message, 0, 2048); memset(SendBuffer, 0, 2048);
+
+
 
             //USER DELETE CASE----------------------------------------------------------------------------------------------
             if (recvBuffer[0] == 'U' and recvBuffer[1] == 'D' and recvBuffer[2] == 'E' and recvBuffer[3] == 'L'){
+                cout << "Initialize deleting by index\n";
                 if (isdigit(recvBuffer[5]) and isdigit(recvBuffer[6])) {
                     char str[2];
                     str[0] = recvBuffer[5];
@@ -96,14 +100,13 @@ int Server::Listen() {
                 } else {
                     DeleteIndex = recvBuffer[5] - 48;
                 }
-                cout << DeleteIndex << ' ';
                 Result = Database::DeleteUser(DeleteIndex);
                 if (Result == 1) {
-                    cout << "Successfully delete user\n";
-                    strcpy(Message, "Successfully delete user\n");
+                    cout << "Successfully delete user by index = " << DeleteIndex << "\n";
+                    strcpy(Message, "SUCCESSFUL_DELETE");
                 } else if (Result == 0) {
-                    cout << "User not found\n";
-                    strcpy(Message, "User not found\n");
+                    cout << "Cant find user by this index\n";
+                    strcpy(Message, "NOTFOUND");
                 }
             }
             //---------------------------------------------------------------------------------------------------------
@@ -327,22 +330,25 @@ int Server::Listen() {
             //---------------------------------------------------------------------------------------------------------
 
             if (recvBuffer[0] == 'D' and recvBuffer[1] == 'F' and recvBuffer[2] == 'F' and recvBuffer[3] == 'R'){
+
                 char sliced_buf[25];
-                string Login, Buffer, AllUserRes;
+                substr(sliced_buf, recvBuffer, 5, 12);
+                string Login(sliced_buf), AllUserRes;
 
-
+                cout << '\n' << Login + "23" << '\n';
 
                 for (auto &ResData : Database::ParsedReservedData) {
-                    if (ResData.User == "NONE") {
+                    if (ResData.User == Login) {
                         AllUserRes += (to_string(ResData.Index) + ResData.Type + ResData.Date + ResData.Place + ResData.User + '\n');
                     }
                 }
                 strcpy(Message, AllUserRes.c_str());
-                cout << Message;
             }
 
             strcpy(SendBuffer, Message);
             Result = send(ClientSocket, SendBuffer, (int)strlen(SendBuffer), 0);
+            memset(SendBuffer, 0, 2048);\
+            memset(Message, 0, 2048);
 
 
             if (Result == SOCKET_ERROR) {
