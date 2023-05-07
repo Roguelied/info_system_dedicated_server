@@ -15,7 +15,6 @@
 #include <iomanip>
 #include <bits/stdc++.h>
 
-#define DELETE_COMMAND 10
 
 using namespace std;
 

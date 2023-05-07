@@ -13,7 +13,7 @@ private:
     static SOCKET ListenSocket;
 
     static char SendBuffer[2048];
-    static char recvBuffer[64];
+    static char recvBuffer[512];
 
 public:
     static int DeleteIndex;
