@@ -80,13 +80,14 @@ int Server::Listen() {
 
 
     do {
+        memset(recvBuffer, 0, 512);
+
         ZeroMemory(recvBuffer, 512);
         Result = recv(ClientSocket, recvBuffer, 512, 0);
         if (Result > 0) {
             cout << "Recieved: " << recvBuffer << endl;
             char Message[2048];
             memset(Message, 0, 2048); memset(SendBuffer, 0, 2048);
-
 
 
             //USER DELETE CASE----------------------------------------------------------------------------------------------
@@ -333,21 +334,34 @@ int Server::Listen() {
 
                 char sliced_buf[25];
                 substr(sliced_buf, recvBuffer, 5, 12);
-                string Login(sliced_buf), AllUserRes;
+                string Buf(sliced_buf);
+                cout << Buf;
+                string Login;
 
-                cout << '\n' << Login + "23" << '\n';
+                int i = 0;
+                while (Buf[i] != '%') {
+                    Login.push_back(Buf[i]);
+                    i++;
+                }
+
+                string AllUserRes;
 
                 for (auto &ResData : Database::ParsedReservedData) {
                     if (ResData.User == Login) {
                         AllUserRes += (to_string(ResData.Index) + ResData.Type + ResData.Date + ResData.Place + ResData.User + '\n');
                     }
                 }
+
                 strcpy(Message, AllUserRes.c_str());
+                cout << Message;
             }
+
+
 
             strcpy(SendBuffer, Message);
             Result = send(ClientSocket, SendBuffer, (int)strlen(SendBuffer), 0);
-            memset(SendBuffer, 0, 2048);\
+            memset(recvBuffer, 0, 512);
+            memset(SendBuffer, 0, 2048);
             memset(Message, 0, 2048);
 
 
