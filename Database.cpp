@@ -148,7 +148,7 @@ void Database::ParseResData() {
     fstream File("../DATA.txt", fstream::in);
 
     getline(File, Buffer);
-    AmountOfAllReserved = Buffer[0] - 48;
+    AmountOfAllReserved = atoi(Buffer.c_str());
 
     while (getline(File, Buffer)) {
         stringstream StringStream(Buffer);

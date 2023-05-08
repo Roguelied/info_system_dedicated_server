@@ -186,11 +186,17 @@ int Server::Listen() {
                 char sliced_buf[40];
                 substr(sliced_buf, recvBuffer, 5, 45);
                 string ReservedData(sliced_buf);
-                auto i = ReservedData.begin();
-                string Type(i, i+6); i+=7;
-                string Date(i, i+16); i+=17;
-                string Place(i, i+2); i+=3;
-                string UserLogin(i, ReservedData.end()-1);
+                stringstream ss(ReservedData);
+                string Type, Date, Place, UserLogin;
+                getline(ss, Type, '%');
+                getline(ss, Date, '%');
+                getline(ss, Place, '%');
+                getline(ss, UserLogin, '%');
+//                auto i = ReservedData.begin();
+//                string Type(i, i+6); i+=7;
+//                string Date(i, i+16); i+=17;
+//                string Place(i, i+2); i+=3;
+//                string UserLogin(i, ReservedData.end());
                 cout << Type << ' ' << Date << ' '<< Place << ' '<< UserLogin << '\n';
 
                 string Buffer = Database::FindReservedData(Type, Date, Place);
@@ -219,29 +225,30 @@ int Server::Listen() {
                 Result = Database::DeleteData(DeleteIndex);
                 if (Result == 1) {
                     cout << "Successfully delete reservation\n";
-                    strcpy(Message, "Successfully delete reservation\n");
+                    strcpy(Message, "Successfully delete reservation");
                 } else if (Result == 0) {
                     cout << "Reservation not found\n";
-                    strcpy(Message, "Reservation not found\n");
+                    strcpy(Message, "Reservation not found");
                 }
             }
             //---------------------------------------------------------------------------------------------------------
             //DATABASE FIND CASE---------------------------------------------------------------------------------------
             if (recvBuffer[0] == 'D' and recvBuffer[1] == 'F' and recvBuffer[2] == 'N' and recvBuffer[3] == 'D'){
-                char sliced_buf[40];
-                substr(sliced_buf, recvBuffer, 5, 45);
+                char sliced_buf[50];
+                substr(sliced_buf, recvBuffer, 5, 50);
                 string ReservedData(sliced_buf);
-                auto i = ReservedData.begin();
-                string Type(i, i+6); i+=7;
-                string Date(i, i+16); i+=17;
-                string Place(i, i+2); i+=3;
-                string UserLogin(i, ReservedData.end()-1);
-                cout << Type << ' ' << Date << ' '<< Place << ' '<< UserLogin << '\n';
+                stringstream ss(ReservedData);
+                string Type, Date, Place, UserLogin;
+                getline(ss, Type, '%');
+                getline(ss, Date, '%');
+                getline(ss, Place, '%');
+                getline(ss, UserLogin, '%');
+                cout << Type << ' ' << Date << ' '<< Place << ' ' << UserLogin << '\n';
 
                 string Buffer = Database::FindReservedData(Type, Date, Place);
 
                 if (Buffer ==  "NOTFOUND") {
-                    strcpy(Message, "NOTFOUND              \n");
+                    strcpy(Message, "NOTFOUND");
                     cout << Message;
                 } else {
                     strcpy(Message, Buffer.c_str());
