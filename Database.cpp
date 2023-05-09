@@ -75,11 +75,10 @@ string Database::FindUser(string Login, string Password) {
             return Buffer;
         }
         else if (User.Login == Login and User.Password != Password) {
-
             return "WRONGPASS";
         }
     }
-    //strcpy(OutputStr, "NOTFOUND");
+
     return "NOTFOUND";
 }
 
@@ -198,9 +197,11 @@ void Database::AddNewReservation(string Type, string Date, string Place, string 
 }
 
 string Database::Reserve(string Login, int ReserveIndex) {
-    if (ReserveIndex > ParsedReservedData.capacity()) {
+    if (ReserveIndex > AmountOfAllReserved) {
+        cout << AmountOfAllReserved + 1 << "   " << ReserveIndex + 1 << "  ";
         return "NOTFOUND";
     }
+
     if (FindUser(Login, "KOCTbILb") != "NOTFOUND") {
         if (ParsedReservedData[ReserveIndex].User == Login) {
             return "ALREADY RESERVED";
@@ -212,5 +213,6 @@ string Database::Reserve(string Login, int ReserveIndex) {
         ReservedDataToFile();
         return Login + " SUCCESSFULLY RESERVED " + to_string(ReserveIndex) + " SLOT";
     }
+    cout << 321;
     return "NOTFOUND";
 }
