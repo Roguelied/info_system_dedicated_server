@@ -1,5 +1,5 @@
 15
-0    Admin    PassWE3FGD    ID000    1
+0    Admin    Pass    ID000    1
 1    User    Pass    ID001    0
 2    LoginTest    PassTest    ID002    0
 3    ABOBA    SKRILLEX    ID003    0

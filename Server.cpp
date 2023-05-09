@@ -80,13 +80,14 @@ int Server::Listen() {
 
 
     do {
+        memset(recvBuffer, 0, 512);
+
         ZeroMemory(recvBuffer, 512);
         Result = recv(ClientSocket, recvBuffer, 512, 0);
         if (Result > 0) {
             cout << "Recieved: " << recvBuffer << endl;
             char Message[2048];
             memset(Message, 0, 2048); memset(SendBuffer, 0, 2048);
-
 
 
             //USER DELETE CASE----------------------------------------------------------------------------------------------
@@ -185,11 +186,17 @@ int Server::Listen() {
                 char sliced_buf[40];
                 substr(sliced_buf, recvBuffer, 5, 45);
                 string ReservedData(sliced_buf);
-                auto i = ReservedData.begin();
-                string Type(i, i+6); i+=7;
-                string Date(i, i+16); i+=17;
-                string Place(i, i+2); i+=3;
-                string UserLogin(i, ReservedData.end()-1);
+                stringstream ss(ReservedData);
+                string Type, Date, Place, UserLogin;
+                getline(ss, Type, '%');
+                getline(ss, Date, '%');
+                getline(ss, Place, '%');
+                getline(ss, UserLogin, '%');
+//                auto i = ReservedData.begin();
+//                string Type(i, i+6); i+=7;
+//                string Date(i, i+16); i+=17;
+//                string Place(i, i+2); i+=3;
+//                string UserLogin(i, ReservedData.end());
                 cout << Type << ' ' << Date << ' '<< Place << ' '<< UserLogin << '\n';
 
                 string Buffer = Database::FindReservedData(Type, Date, Place);
@@ -218,29 +225,30 @@ int Server::Listen() {
                 Result = Database::DeleteData(DeleteIndex);
                 if (Result == 1) {
                     cout << "Successfully delete reservation\n";
-                    strcpy(Message, "Successfully delete reservation\n");
+                    strcpy(Message, "Successfully delete reservation");
                 } else if (Result == 0) {
                     cout << "Reservation not found\n";
-                    strcpy(Message, "Reservation not found\n");
+                    strcpy(Message, "Reservation not found");
                 }
             }
             //---------------------------------------------------------------------------------------------------------
             //DATABASE FIND CASE---------------------------------------------------------------------------------------
             if (recvBuffer[0] == 'D' and recvBuffer[1] == 'F' and recvBuffer[2] == 'N' and recvBuffer[3] == 'D'){
-                char sliced_buf[40];
-                substr(sliced_buf, recvBuffer, 5, 45);
+                char sliced_buf[50];
+                substr(sliced_buf, recvBuffer, 5, 50);
                 string ReservedData(sliced_buf);
-                auto i = ReservedData.begin();
-                string Type(i, i+6); i+=7;
-                string Date(i, i+16); i+=17;
-                string Place(i, i+2); i+=3;
-                string UserLogin(i, ReservedData.end()-1);
-                cout << Type << ' ' << Date << ' '<< Place << ' '<< UserLogin << '\n';
+                stringstream ss(ReservedData);
+                string Type, Date, Place, UserLogin;
+                getline(ss, Type, '%');
+                getline(ss, Date, '%');
+                getline(ss, Place, '%');
+                getline(ss, UserLogin, '%');
+                cout << Type << ' ' << Date << ' '<< Place << ' ' << UserLogin << '\n';
 
                 string Buffer = Database::FindReservedData(Type, Date, Place);
 
                 if (Buffer ==  "NOTFOUND") {
-                    strcpy(Message, "NOTFOUND              \n");
+                    strcpy(Message, "NOTFOUND");
                     cout << Message;
                 } else {
                     strcpy(Message, Buffer.c_str());
@@ -333,21 +341,34 @@ int Server::Listen() {
 
                 char sliced_buf[25];
                 substr(sliced_buf, recvBuffer, 5, 12);
-                string Login(sliced_buf), AllUserRes;
+                string Buf(sliced_buf);
+                cout << Buf;
+                string Login;
 
-                cout << '\n' << Login + "23" << '\n';
+                int i = 0;
+                while (Buf[i] != '%') {
+                    Login.push_back(Buf[i]);
+                    i++;
+                }
+
+                string AllUserRes;
 
                 for (auto &ResData : Database::ParsedReservedData) {
                     if (ResData.User == Login) {
                         AllUserRes += (to_string(ResData.Index) + ResData.Type + ResData.Date + ResData.Place + ResData.User + '\n');
                     }
                 }
+
                 strcpy(Message, AllUserRes.c_str());
+                cout << Message;
             }
+
+
 
             strcpy(SendBuffer, Message);
             Result = send(ClientSocket, SendBuffer, (int)strlen(SendBuffer), 0);
-            memset(SendBuffer, 0, 2048);\
+            memset(recvBuffer, 0, 512);
+            memset(SendBuffer, 0, 2048);
             memset(Message, 0, 2048);
 
 
