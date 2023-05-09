@@ -117,7 +117,6 @@ int Server::Listen() {
                 char sliced_buf[26];
                 substr(sliced_buf, recvBuffer, 5, 26);
                 string Credentials(sliced_buf);
-                cout << Credentials;
                 string Login;
                 string Password;
                 int i = 0;
@@ -125,7 +124,6 @@ int Server::Listen() {
                     Login.push_back(Credentials[i]);
                     i++;
                 }
-                cout << '\n' << Login << '\n';
                 i += 1;
                 int c = i;
                 i = 0;
@@ -133,20 +131,17 @@ int Server::Listen() {
                     Password.push_back(Credentials[c + i]);
                     i++;
                 }
-                cout << Password << '\n';
+                cout << "Received login: " << Login << "  Received password: " << Password << '\n';
+
 
                 string Buffer = Database::FindUser(Login, Password);
 
                 if (Buffer == "WRONGPASS") {
                     strcpy(Message, "WRONGPASS");
-                    cout << Message;
                 } else if (Buffer == "NOTFOUND") {
                     strcpy(Message, "NOTFOUND");
-                    cout << Message;
                 } else {
-
                     strcpy(Message, Buffer.c_str());
-                    cout << Message;
                 }
             }
             //---------------------------------------------------------------------------------------------------------
@@ -157,13 +152,11 @@ int Server::Listen() {
                 string Password;
                 substr(sliced_buf, recvBuffer, 5, 25);
                 string Credentials(sliced_buf);
-                cout << Credentials;
                 int i = 0;
                 while (Credentials[i] != '%') {
                     Login.push_back(Credentials[i]);
                     i++;
                 }
-                cout << '\n' << Login << '\n';
                 i += 1;
                 int c = i;
                 i = 0;
@@ -171,17 +164,15 @@ int Server::Listen() {
                     Password.push_back(Credentials[c + i]);
                     i++;
                 }
-                cout << Password << '\n';
+                cout << "Received login: " << Login << "  Received password: " << Password << '\n';
 
                 string Buffer = Database::FindUser(Login, Password);
 
                 if (Buffer == "NOTFOUND") {
                     Database::RegUser(Login, Password);
                     strcpy(Message, "REGISTERED                             \n");
-                    cout << Message;
                 } else {
                     strcpy(Message, "Username is taken");
-                    cout << Message << '\n';
                 }
             }
             //---------------------------------------------------------------------------------------------------------
@@ -204,10 +195,8 @@ int Server::Listen() {
                 if (Buffer == "NOTFOUND") {
                     Database::AddNewReservation(Type, Date, Place, UserLogin);
                     strcpy(Message, "RESERVATION ADDED              \n");
-                    cout << Message;
                 } else {
                     strcpy(Message, "This reservation is already exist");
-                    cout << Message << '\n';
                 }
             }
             //---------------------------------------------------------------------------------------------------------
@@ -356,12 +345,12 @@ int Server::Listen() {
                     strcpy(Message, "empty");
                 } else {
                     strcpy(Message, AllUserRes.c_str());
-                    cout << Message;
                 }
             }
 
-
+            cout << Message << endl;
             strcpy(SendBuffer, Message);
+
             Result = send(ClientSocket, SendBuffer, (int) strlen(SendBuffer), 0);
             memset(recvBuffer, 0, 512);
             memset(SendBuffer, 0, 2048);
