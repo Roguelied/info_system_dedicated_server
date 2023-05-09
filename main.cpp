@@ -30,24 +30,11 @@
  */
 
 int main() {
-
     Database::ParseUserData();
     Database::ParseResData();
-
-    //Database::DeleteData(3);
-    //Database::AddNewReservation("ZCLASS", "08.05.2023/18:44", "33", "NONE");
-
     Server::Initialize();
     int RecvCommand = Server::Listen();
-    //cout << Database::FindUser("Admin", "PassWE3FGD");
-
-
-//    for (auto i : Database::ParsedReservedData) {
-//        cout << i.Index << i.Type << i.Date << i.Place << i.User <<'\n';
-//    }
-
     int a;
     cin >> a;
-
     return 0;
 }
