@@ -212,5 +212,5 @@ string Database::Reserve(string Login, int ReserveIndex) {
         ReservedDataToFile();
         return Login + " SUCCESSFULLY RESERVED " + to_string(ReserveIndex) + " SLOT";
     }
-    return "NOUTFOUND";
+    return "NOTFOUND";
 }

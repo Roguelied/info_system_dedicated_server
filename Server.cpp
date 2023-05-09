@@ -291,10 +291,13 @@ int Server::Listen() {
 
                 if (Buffer == "RESERVED BY ANOTHER USER") {
                     cout << "RESERVED BY ANOTHER USER";
+                    strcpy(Message, Buffer.c_str());
                 } else if (Buffer == "ALREADY RESERVED") {
                     cout << "ALREADY RESERVED";
+                    strcpy(Message, Buffer.c_str());
                 } else if (Buffer == "NOTFOUND") {
                     cout << "NOTFOUND";
+                    strcpy(Message, Buffer.c_str());
                 } else {
                     cout << Buffer << '\n';
                     strcpy(Message, Buffer.c_str());
@@ -329,7 +332,8 @@ int Server::Listen() {
                 string AllAvailableRes;
                 for (auto &ResData : Database::ParsedReservedData) {
                     if (ResData.User == "NONE") {
-                        AllAvailableRes += (to_string(ResData.Index) + ResData.Type + ResData.Date + ResData.Place + ResData.User + '\n');
+                        AllAvailableRes += (to_string(ResData.Index) + " " + ResData.Type + " " + ResData.Date +\
+                        " " + ResData.Place + " " + ResData.User + '\n');
                     }
                 }
                 strcpy(Message, AllAvailableRes.c_str());
